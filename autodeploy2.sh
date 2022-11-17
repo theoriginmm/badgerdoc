@@ -16,6 +16,8 @@ EOF
 
 helm install postgres -n ${NAMESPACE} bitnami/postgresql -f infra/helm/postgres/values.yaml --version 10.14.3
 
+# TODO: init job with waiter
+
 sleep 90
 
 DATABASE='create database annotation;
