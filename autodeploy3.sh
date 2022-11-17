@@ -1,4 +1,4 @@
-sed -i "s/dev1/${NAMESPACE}/g" infra/helm/minio/values.yaml
+sed -i'.orig' "s/dev1/${NAMESPACE}/g" infra/helm/minio/values.yaml
 
 helm install --namespace minio-operator --create-namespace --generate-name minio/minio-operator -f infra/helm/minio/values.yaml
 

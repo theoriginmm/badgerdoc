@@ -48,7 +48,7 @@ kubectl apply -f infra/k8s/helm/istio/patched_istio_svc.yaml
 
 # Install knative:
 
-sed -i "s/dev1/${NAMESPACE}/g" infra/k8s/knative/rbac.yaml
+sed -i'.orig' "s/dev1/${NAMESPACE}/g" infra/k8s/knative/rbac.yaml
 
 kubectl create ns knative-serving
 kubectl apply -f infra/k8s/knative/operator.yaml
