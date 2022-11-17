@@ -25,6 +25,11 @@ spec:
 EOF
 
 
-DNS_CONFIG=$(kubectl -n kube-system get configmap coredns -o json | grep -oP '(?<="Corefile": ")[^"]*' | sed 's@ready@ready\\n    rewrite name app.badgerdoc.com ambassador.ambassador.svc.cluster.local@g')
+DNS_CONFIG=$(kubectl -n kube-system get configmap coredns -o json)
 
-kubectl -n kube-system patch configmap coredns -p '{"data": { "Corefile": "'"${DNS_CONFIG}"'" }}'
+if [[ $OSTYPE == *linux* ]]; then CONFIG=$(echo $DNS_CONFIG | grep -oP '(?<="Corefile": ")[^"]*'); fi
+if [[ $OSTYPE == *darwin* ]]; then CONFIG=$(echo $DNS_CONFIG | jq ".data.Corefile" -r); fi
+
+NEW_DNS_CONFIG=$(echo ${CONFIG} | sed "s@ready@ready\\\n    rewrite name ${NAMESPACE}.badgerdoc.com ambassador.ambassador.svc.cluster.local@g")
+
+kubectl -n kube-system patch configmap coredns -p '{"data": { "Corefile": "'"${NEW_DNS_CONFIG}"'" }}'

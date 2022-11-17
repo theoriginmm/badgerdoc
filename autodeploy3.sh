@@ -24,10 +24,13 @@ spec:
   timeout_ms: 0
 EOF
 
-sleep 90
+sleep 2
 
-TOKEN=$(curl -s "http://minio1.${NAMESPACE}.badgerdoc.com/api/v1/login" -X POST -H 'Content-Type: application/json' \
---data '{"accessKey":"minioadmin","secretKey":"minioadmin"}'| grep -oP '(?<="sessionId":")[^"]*' )
+RESPONSE=$(curl -s "http://minio1.${NAMESPACE}.badgerdoc.com/api/v1/login" -X POST -H 'Content-Type: application/json' \
+--data '{"accessKey":"minioadmin","secretKey":"minioadmin"}')
+
+if [[ $OSTYPE == *linux* ]]; then TOKEN=$(echo $RESPONSE | grep -oP '(?<="sessionId":")[^"]*'); fi
+if [[ $OSTYPE == *darwin* ]]; then TOKEN=$(echo $RESPONSE | jq ".sessionId" -r); fi
 
 curl -s "http://minio1.${NAMESPACE}.badgerdoc.com/api/v1/buckets" -X POST -H 'Content-Type: application/json' -H "Cookie: token=${TOKEN}" \
 --data '{"name":"test","versioning":false,"locking":false}'
