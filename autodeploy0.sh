@@ -47,6 +47,9 @@ sleep 1
 kubectl apply -f infra/k8s/helm/istio/patched_istio_svc.yaml
 
 # Install knative:
+
+sed -i "s/dev1/${NAMESPACE}/g" infra/k8s/knative/rbac.yaml
+
 kubectl create ns knative-serving
 kubectl apply -f infra/k8s/knative/operator.yaml
 sleep 10
@@ -55,5 +58,5 @@ kubectl apply -f infra/k8s/knative/domain.configuration.yaml
 kubectl label namespace knative-serving istio-injection=enabled
 
 # Prepare for application
-kubectl create ns app
-kubectl label namespace app istio-injection=enabled
+kubectl create ns ${NAMESPACE}
+kubectl label namespace ${NAMESPACE} istio-injection=enabled
