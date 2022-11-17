@@ -13,7 +13,7 @@ apiVersion: getambassador.io/v2
 kind: Mapping
 metadata:
   name: bagerdoc-keycloack
-  namespace: app
+  namespace: ${NAMESAPCE}
 spec:
   connect_timeout_ms: 2000
   host: ${NAMESPACE}.badgerdoc.com

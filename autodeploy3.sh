@@ -24,17 +24,20 @@ spec:
   timeout_ms: 0
 EOF
 
-sleep 2
+sleep 60
 
-RESPONSE=$(curl -s "http://minio1.${NAMESPACE}.badgerdoc.com/api/v1/login" -X POST -H 'Content-Type: application/json' \
---data '{"accessKey":"minioadmin","secretKey":"minioadmin"}')
+#TODO: repalce with  Init Job
+RESPONSE=$(kubectl -n ${NAMESPACE} exec -ti minio1-ss-0-0 -- curl -s "http://localhost:9090/api/v1/login" \
+-X POST -H 'Content-Type: application/json' --data '{"accessKey":"minioadmin","secretKey":"minioadmin"}')
 
 if [[ $OSTYPE == *linux* ]]; then TOKEN=$(echo $RESPONSE | grep -oP '(?<="sessionId":")[^"]*'); fi
 if [[ $OSTYPE == *darwin* ]]; then TOKEN=$(echo $RESPONSE | jq ".sessionId" -r); fi
 
-curl -s "http://minio1.${NAMESPACE}.badgerdoc.com/api/v1/buckets" -X POST -H 'Content-Type: application/json' -H "Cookie: token=${TOKEN}" \
+kubectl -n ${NAMESPACE} exec -ti minio1-ss-0-0 -- curl -s "http://localhost:9090/api/v1/buckets" \
+-X POST -H 'Content-Type: application/json' -H "Cookie: token=${TOKEN}" \
 --data '{"name":"test","versioning":false,"locking":false}'
 
-curl -s "http://minio1.${NAMESPACE}.badgerdoc.com/api/v1/users" -X POST -H 'Content-Type: application/json' -H "Cookie: token=${TOKEN}" \
+kubectl -n ${NAMESPACE} exec -ti minio1-ss-0-0 -- curl -s "http://localhost:9090/api/v1/users" \
+-X POST -H 'Content-Type: application/json' -H "Cookie: token=${TOKEN}" \
 --data '{"accessKey":"serviceuser","secretKey":"12345678","groups":[],"policies":["readwrite"]}'
 
