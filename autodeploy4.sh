@@ -33,3 +33,7 @@ EOF
 # NEW_DNS_CONFIG=$(printf "${CONFIG}" | sed "s@ready@ready\\\n    rewrite name ${NAMESPACE}.badgerdoc.com ambassador.ambassador.svc.cluster.local@g")
 
 # kubectl -n kube-system patch configmap coredns -p '{"data": { "Corefile": "'"${NEW_DNS_CONFIG}"'" }}'
+
+kubectl -n kube-system patch configmap coredns -p "{\"data\": { \"Corefile\": $(kubectl -n kube-system get cm coredns -ojson | jq ".data.Corefile" | sed "s@ready@ready\\\n    rewrite name namespace.badgerdoc.com ambassador.ambassador.svc.cluster.local@g") }}"
+
+kubectl -n kube-system delete pod $(kubectl -n kube-system get pod | grep coredns | awk '{ print $1 }')
