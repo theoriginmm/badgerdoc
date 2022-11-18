@@ -31,5 +31,7 @@ create database scheduler;
 create database keycloak;
 '
 
-echo $DATABASE | kubectl -n ${NAMESPACE} exec -ti postgres-postgresql-0 -- bash -c 'PGPASSWORD=postgres psql -U postgres'
-kubectl -n ${NAMESPACE} exec -ti postgres-postgresql-0 -- bash -c 'PGPASSWORD=postgres psql -U postgres annotation -c "create extension ltree;"'
+echo $DATABASE | kubectl -n ${NAMESPACE} exec -i postgres-postgresql-0 -- bash -c 'PGPASSWORD=postgres psql -U postgres'
+
+kubectl -n ${NAMESPACE} exec  postgres-postgresql-0 -- bash -c 'PGPASSWORD=postgres psql -U postgres annotation -c "create extension ltree;"'
+

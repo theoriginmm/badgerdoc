@@ -4,7 +4,7 @@ metadata:
   name: badgerdoc-ui
   namespace: {{ .Release.Namespace }}
 spec:
-  host: {{ .Release.Namespace }}.gcov.ru
+  host: {{ .Release.Namespace }}.badgerdoc.com
   connect_timeout_ms: 30000
   idle_timeout_ms: 50000
   prefix: /

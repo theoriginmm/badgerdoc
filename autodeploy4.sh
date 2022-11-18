@@ -25,11 +25,11 @@ spec:
 EOF
 
 
-DNS_CONFIG=$(kubectl -n kube-system get configmap coredns -o json)
+# DNS_CONFIG=$(kubectl -n kube-system get configmap coredns -o json)
 
-if [[ $OSTYPE == *linux* ]]; then CONFIG=$(echo $DNS_CONFIG | grep -oP '(?<="Corefile": ")[^"]*'); fi
-if [[ $OSTYPE == *darwin* ]]; then CONFIG=$(echo $DNS_CONFIG | jq ".data.Corefile" | tr -d '"'); fi
+# if [[ $OSTYPE == *linux* ]]; then CONFIG=$(echo "$DNS_CONFIG" | grep -oP '(?<="Corefile": ")[^"]*'); fi
+# if [[ $OSTYPE == *darwin* ]]; then CONFIG=$(echo "$DNS_CONFIG" | jq ".data.Corefile" | tr -d '"'); fi
 
-NEW_DNS_CONFIG=$(echo ${CONFIG} | sed "s@ready@ready\\\n    rewrite name ${NAMESPACE}.badgerdoc.com ambassador.ambassador.svc.cluster.local@g")
+# NEW_DNS_CONFIG=$(printf "${CONFIG}" | sed "s@ready@ready\\\n    rewrite name ${NAMESPACE}.badgerdoc.com ambassador.ambassador.svc.cluster.local@g")
 
-kubectl -n kube-system patch configmap coredns -p '{"data": { "Corefile": "'"${NEW_DNS_CONFIG}"'" }}'
+# kubectl -n kube-system patch configmap coredns -p '{"data": { "Corefile": "'"${NEW_DNS_CONFIG}"'" }}'
