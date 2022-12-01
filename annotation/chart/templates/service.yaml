@@ -10,10 +10,10 @@ spec:
   - IPv4
   ipFamilyPolicy: SingleStack
   ports:
-  - port: 80
+  - port: {{ .Values.servicePort }}
     protocol: TCP
     targetPort: 8080
   selector:
     app: annotation
   sessionAffinity: None
-  type: ClusterIP
+  type: "{{ .Values.serviceType }}"
