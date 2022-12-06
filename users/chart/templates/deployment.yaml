@@ -4,40 +4,51 @@ metadata:
   annotations:
     deployment.kubernetes.io/revision: "1"
   labels:
-    app: users
-  name: users
+    release: {{ .Release.Name | quote }}
+    chart: "{{ .Chart.Name }}"
+    app: "{{ template "svc.name" . }}"
+    {{- range $key, $value := .Values.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  name: {{ template "svc.name" . }}
   namespace: {{ .Release.Namespace }}
 spec:
   progressDeadlineSeconds: 600
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: users
+      app: {{ template "svc.name" . }}
   strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
+{{ toYaml .Values.updateStrategy | indent 4 }}
   template:
     metadata:
-      annotations:
-        sidecar.istio.io/inject: "false"
-      creationTimestamp: null
       labels:
-        app: users
+        release: {{ .Release.Name | quote }}
+        chart: "{{ .Chart.Name }}"
+        app: "{{ template "svc.name" . }}"
+        {{- range $key, $value := .Values.labels }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
     spec:
+      {{- if .Values.affinity }}
+      affinity:
+{{ toYaml .Values.affinity | indent 8 }}
+      {{- end }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 8 }}
       containers:
-      - image: {{ .Values.image.registry }}/users:{{ .Values.image.tag }}
-        imagePullPolicy: IfNotPresent
+      - image: "{{ .Values.image.registry }}/assets:{{ .Values.image.tag }}"
+        imagePullPolicy: "{{ .Values.imagePullPolicy }}"
         name: users
         resources:
-          requests:
-            memory: "100Mi"
-            cpu: "200m"
-          limits:
-            memory: "1200Mi"
-            cpu: "600m"
+{{ toYaml .Values.resources | indent 10 }}
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         env:
@@ -52,49 +63,51 @@ spec:
               name: users
               key: POSTGRES_PASSWORD
         - name: POSTGRES_PORT
-          value: "5432"
+          value: "{{ default .Values.global.db.port .Values.db.port  }}"
         - name: POSTGRES_DB
-          value: "users"
+          value: "{{ .Values.db.name }}"
         - name: POSTGRES_HOST
-          value: "postgres-postgresql"
+          value: "{{ default .Values.global.db.host .Values.db.host }}"
         - name: MINIO_URI
-          value: "minio:80"
+          value: "{{ default .Values.global.s3.endpoint .Values.s3.endpoint }}"
+          {{- if .Values.secret.s3user }}
         - name: MINIO_ACCESS_KEY
           valueFrom:
             secretKeyRef:
-              name: assets
-              key: MINIO_ACCESS_KEY
+              name: users
+              key: S3_LOGIN
+          {{- end }}
+          {{- if .Values.secret.s3password }}
         - name: MINIO_SECRET_KEY
           valueFrom:
             secretKeyRef:
-              name: assets
-              key: MINIO_SECRET_KEY
+              name: users
+              key: S3_PASS
+          {{- end }}
         - name: KEYCLOAK_ENDPOINT
-          value: "http://bagerdoc-keycloack"
+          value: "{{ .Values.keycloak.internalUrl }}"
+        - name: KEYCLOAK_DIRECT_ENDPOINT
+          value: "{{ .Values.keycloak.externalUrl }}"
         - name: KEYCLOAK_USERS_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
-              name: users-keycloack
+              name: users-keycloak
               key: KEYCLOAK_USERS_PUBLIC_KEY
-        - name: KEYCLOAK_DIRECT_ENDPOINT
-          valueFrom:
-            secretKeyRef:
-              name: users
-              key: KEYCLOAK_DIRECT_ENDPOINT_DEV1
         - name: BADGERDOC_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
-              name: users
-              key: BADGERDOC_CLIENT_SECRET_DEV1
+              name: users-keycloak
+              key: BADGERDOC_CLIENT_SECRET
         - name: ADMIN_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
-              name: users
-              key: ADMIN_CLIENT_SECRET_DEV1
+              name: users-keycloak
+              key: ADMIN_CLIENT_SECRET
         command: ["/bin/sh"]
         args: ["-c", "uvicorn src.main:app --host 0.0.0.0 --port 8080 --root-path /api/v1/users"]
       dnsPolicy: ClusterFirst
       restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext: {}
+      schedulerName: "{{ .Values.schedulerName }}"
+      securityContext:
+{{ toYaml .Values.securityContext | indent 8 }}
       terminationGracePeriodSeconds: 30

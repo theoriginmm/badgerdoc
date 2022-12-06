@@ -18,7 +18,7 @@ spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: assets
+      app: {{ template "svc.name" . }}
   strategy:
 {{ toYaml .Values.updateStrategy | indent 4 }}
   template:
