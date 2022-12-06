@@ -4,40 +4,51 @@ metadata:
   annotations:
     deployment.kubernetes.io/revision: "1"
   labels:
-    app: jobs
-  name: jobs
+    release: {{ .Release.Name | quote }}
+    chart: "{{ .Chart.Name }}"
+    app: "{{ template "svc.name" . }}"
+    {{- range $key, $value := .Values.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  name: {{ template "svc.name" . }}
   namespace: {{ .Release.Namespace }}
 spec:
   progressDeadlineSeconds: 600
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: jobs
+      app: {{ template "svc.name" . }}
   strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
+{{ toYaml .Values.updateStrategy | indent 4 }}
   template:
     metadata:
-      annotations:
-        sidecar.istio.io/inject: "false"
-      creationTimestamp: null
       labels:
-        app: jobs
+        release: {{ .Release.Name | quote }}
+        chart: "{{ .Chart.Name }}"
+        app: "{{ template "svc.name" . }}"
+        {{- range $key, $value := .Values.labels }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
     spec:
+      {{- if .Values.affinity }}
+      affinity:
+{{ toYaml .Values.affinity | indent 8 }}
+      {{- end }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 8 }}
       containers:
       - image: {{ .Values.image.registry }}/jobs:{{ .Values.image.tag }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: "{{ .Values.imagePullPolicy }}"
         name: jobs
         resources:
-          requests:
-            memory: "200Mi"
-            cpu: "200m"
-          limits:
-            memory: "2000Mi"
-            cpu: "500m"
+{{ toYaml .Values.resources | indent 10 }}
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         env:
@@ -45,7 +56,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: jobs
-              key: POSTGRESQL_JOBMANAGER_DATABASE_URI
+              key: DATABASE_URL
         - name: PIPELINES_URI
           value: "pipelines"
         - name: ASSETS_URI
@@ -53,14 +64,12 @@ spec:
         - name: ANNOTATION_MICROSERVICE_URI
           value: "annotation"
         - name: KEYCLOAK_HOST
-          valueFrom:
-            secretKeyRef:
-              name: users
-              key: KEYCLOAK_DIRECT_ENDPOINT_DEV1
+          value: "{{ .Values.keycloak.externalUrl }}"
         command: ["/bin/sh"]
         args: ["-c", "alembic upgrade head && uvicorn jobs.main:app --host 0.0.0.0 --port 8123 --root-path /api/v1/jobs"]
       dnsPolicy: ClusterFirst
       restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext: {}
+      schedulerName: "{{ .Values.schedulerName }}"
+      securityContext:
+{{ toYaml .Values.securityContext | indent 8 }}
       terminationGracePeriodSeconds: 30
