@@ -1,7 +1,7 @@
 apiVersion: getambassador.io/v2
 kind: Mapping
 metadata:
-  name: assets
+  name: {{ template "svc.name" . }}
   namespace: {{ .Release.Namespace }}
 spec:
   host: {{ .Release.Namespace }}.badgerdoc.com
@@ -18,7 +18,7 @@ spec:
 apiVersion: getambassador.io/v2
 kind: Mapping
 metadata:
-  name: assets-internal
+  name: {{ template "svc.name" . }}-internal
   namespace: {{ .Release.Namespace }}
 spec:
   host: ambassador

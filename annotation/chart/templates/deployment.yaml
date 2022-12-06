@@ -77,7 +77,7 @@ spec:
               name: annotation
               key: S3_LOGIN
         {{- end }}
-        {{- if .Values.secret.s3user }}
+        {{- if .Values.secret.s3password }}
         - name: S3_PASS
           valueFrom:
             secretKeyRef:

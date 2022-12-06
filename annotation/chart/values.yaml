@@ -1,5 +1,7 @@
 extraEnvs: []
 
+host:  example.com
+
 image:
     registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
     tag: latest
