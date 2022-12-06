@@ -1,0 +1,144 @@
+global:
+  db:
+    host: postgres-postgresql
+  s3:
+    endpoint: "http://minio"
+
+annotation:
+  affinity: {}
+  db:
+    host: sdr
+    name: annotation
+    port: "5432"
+  image:
+    registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
+    tag: latest
+  imagePullPolicy: always
+  nodeSelector: {}
+  replicaCount: 1
+  s3:
+    endpoint: http://minio
+  secret:
+    dbpassword: postgres
+    dbuser: postgres
+    enabled: true
+    s3password: null
+    s3user: null
+  tolerations: []
+
+assets:
+  image:
+    registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
+    tag: latest
+  imagePullPolicy: always
+  podAnnotations:
+    sidecar.istio.io/inject: "false"
+  labels:
+    app: assets
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "200Mi"
+      cpu: "200m"
+    limits:
+      memory: "1000Mi"
+      cpu: "400m"
+  s3:
+    endpoint: null
+  db:
+    host: "postgres-postgresql"
+    port: "5432"
+    name: "assets"
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  secret:
+    enabled: true
+    dburl: "postgresql+psycopg2://postgres:postgres@postgres-postgresql:5432/file_management"
+    s3user: "serviceuser"
+    s3password: "12345678"
+  securityContext: {}
+  servicePort: 80
+  serviceType: ClusterIP
+  updateStrategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+
+jobs:
+  image:
+    registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
+    tag: latest
+  podAnnotations:
+    sidecar.istio.io/inject: "false"
+  labels:
+    app: jobs
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "200Mi"
+      cpu: "200m"
+    limits:
+      memory: "1000Mi"
+      cpu: "400m"
+  keycloak:
+    externalUrl: "http://example.com"
+  nameOverride: ""
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  secret:
+    enabled: true
+    dburl: "postgresql+psycopg2://postgres:postgres@postgres-postgresql:5432/job_manager"
+  securityContext: {}
+
+users:
+  image:
+    registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
+    tag: latest
+  podAnnotations:
+    sidecar.istio.io/inject: "false"
+  labels:
+    app: users
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "200Mi"
+      cpu: "200m"
+    limits:
+      memory: "1000Mi"
+      cpu: "400m"
+  s3:
+    endpoint: "http://minio"
+  db:
+    host: "postgres-postgresql"
+    port: "5432"
+    name: "users"
+  keycloak:
+    externalUrl: "http://example.com"
+    internalUrl: "http://bagerdoc-keycloack"
+  secret:
+    enabled: true
+    dbuser: "postgres"
+    dbpassword: "postgres"
+    s3user: "serviceuser"
+    s3password: "12345678"
+
+web:
+  image:
+    registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
+    tag: latest
+  podAnnotations:
+    sidecar.istio.io/inject: "false"
+  labels:
+    app: badgerdoc-ui
+  replicaCount: 1
+  resources: {}
+  affinity: {}
+  nodeSelector: {}
+  tolerations: []
+  servicePort: 80
+  serviceType: ClusterIP
+
+

@@ -28,12 +28,6 @@ schedulerName: default-scheduler
 s3:
     endpoint: "http://minio"
 
-db:
-    host: "postgres-postgresql"
-    port: "5432"
-    name: "assets"
-
-
 nameOverride: ""
 
 affinity: {}

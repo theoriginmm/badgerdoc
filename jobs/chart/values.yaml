@@ -11,7 +11,7 @@ imagePullPolicy: always
 podAnnotations:
     sidecar.istio.io/inject: "false"
 labels:
-    app: assets
+    app: jobs
 
 replicaCount: 1
 
@@ -25,14 +25,6 @@ resources:
 
 schedulerName: default-scheduler
 
-s3:
-    endpoint: "http://minio"
-
-db:
-    host: "postgres-postgresql"
-    port: "5432"
-    name: "assets"
-
 keycloak:
     externalUrl: "http://example.com"
 
@@ -45,9 +37,6 @@ tolerations: []
 secret:
     enabled: true
     dburl: "postgresql+psycopg2://postgres:postgres@postgres-postgresql:5432/job_manager"
-    s3user: "serviceuser"
-    s3password: "12345678"
-
 
 securityContext: {}
 
