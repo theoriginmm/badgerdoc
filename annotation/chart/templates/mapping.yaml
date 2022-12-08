@@ -1,7 +1,7 @@
 apiVersion: getambassador.io/v2
 kind: Mapping
 metadata:
-  name: users
+  name: {{ template "svc.name" . }}
   namespace: {{ .Release.Namespace }}
 spec:
   host: {{ default .Values.host .Values.global.host }}

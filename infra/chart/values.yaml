@@ -6,7 +6,7 @@ global:
     endpoint: "http://minio"
   host: yourexample.com
   rbac:
-    serviceAccountName: "serviceAccount"
+    serviceAccountName: "serviceaccount"
     automountToken: false
 
 annotation:
@@ -18,7 +18,7 @@ annotation:
   image:
     registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
     tag: latest
-  imagePullPolicy: always
+  imagePullPolicy: Always
   nodeSelector: {}
   replicaCount: 1
   s3:
@@ -35,7 +35,7 @@ assets:
   image:
     registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
     tag: latest
-  imagePullPolicy: always
+  imagePullPolicy: Always
   podAnnotations:
     sidecar.istio.io/inject: "false"
   labels:

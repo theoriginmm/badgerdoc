@@ -4,7 +4,7 @@ image:
     registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
     tag: latest
 
-imagePullPolicy: always
+imagePullPolicy: Always
 
 podAnnotations:
     sidecar.istio.io/inject: "false"
