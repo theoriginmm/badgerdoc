@@ -1,12 +1,12 @@
 global:
   db:
-    host: postgres-postgresql-xxx
+    host: postgres-postgresql
     port: 5432
   s3:
     endpoint: "http://minio"
   host: yourexample.com
   rbac:
-    serviceAccountName: "serviceaccount"
+    serviceAccountName: null
     automountToken: false
 
 annotation:
@@ -17,10 +17,11 @@ annotation:
     name: "annotation"
   image:
     registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
-    tag: latest
+    tag: 0.1.5-379754b
   imagePullPolicy: Always
   nodeSelector: {}
   replicaCount: 1
+  resources: null
   s3:
     endpoint: null
   secret:
@@ -34,20 +35,14 @@ annotation:
 assets:
   image:
     registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
-    tag: latest
+    tag: 0.1.7-379754b
   imagePullPolicy: Always
   podAnnotations:
     sidecar.istio.io/inject: "false"
   labels:
     app: assets
   replicaCount: 1
-  resources:
-    requests:
-      memory: "200Mi"
-      cpu: "200m"
-    limits:
-      memory: "1000Mi"
-      cpu: "500m"
+  resources: null
   s3:
     endpoint: null
   affinity: {}
@@ -70,19 +65,13 @@ assets:
 jobs:
   image:
     registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
-    tag: latest
+    tag: jobs:0.1.9-379754b
   podAnnotations:
     sidecar.istio.io/inject: "false"
   labels:
     app: jobs
   replicaCount: 1
-  resources:
-    requests:
-      memory: "200Mi"
-      cpu: "200m"
-    limits:
-      memory: "2000Mi"
-      cpu: "500m"
+  resources: null
   keycloak:
     externalUrl: "http://example.com"
   nameOverride: ""
@@ -97,19 +86,13 @@ jobs:
 users:
   image:
     registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
-    tag: latest
+    tag: 0.1.2-379754b
   podAnnotations:
     sidecar.istio.io/inject: "false"
   labels:
     app: users
   replicaCount: 1
-  resources:
-    requests:
-      memory: "100Mi"
-      cpu: "200m"
-    limits:
-      memory: "1200Mi"
-      cpu: "600m"
+  resources: null
   s3:
     endpoint: null
   db:
@@ -129,7 +112,7 @@ users:
 web:
   image:
     registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
-    tag: latest
+    tag: 0.2.0-379754b
   podAnnotations:
     sidecar.istio.io/inject: "false"
   labels:
