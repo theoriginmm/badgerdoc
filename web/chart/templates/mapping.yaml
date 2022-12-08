@@ -4,7 +4,7 @@ metadata:
   name: {{ template "svc.name" . }}
   namespace: {{ .Release.Namespace }}
 spec:
-  host: {{ .Release.Namespace }}.badgerdoc.com
+  host: {{ default .Values.host .Values.global.host }}
   connect_timeout_ms: 30000
   idle_timeout_ms: 50000
   prefix: /

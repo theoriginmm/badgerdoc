@@ -23,6 +23,10 @@ resources:
         memory: "1000Mi"
         cpu: "400m"
 
+rbac:
+    serviceAccountName: null
+    automountToken: false
+
 schedulerName: default-scheduler
 
 keycloak:

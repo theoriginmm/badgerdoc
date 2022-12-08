@@ -75,6 +75,8 @@ spec:
           {{- end }}
         command: ["/bin/sh"]
         args: ["-c", "alembic upgrade afa33cc83d57 && alembic upgrade fe5926249504 && alembic upgrade 0f6c859c1d1c && alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8080 --root-path /api/v1/assets"]
+      serviceAccountName: {{ default .Values.global.rbac.serviceAccountName .Values.rbac.serviceAccountName }}
+      automountServiceAccountToken: {{ default .Values.global.rbac.automountToken .Values.rbac.automountToken }}
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: "{{ .Values.schedulerName }}"

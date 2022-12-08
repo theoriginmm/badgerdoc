@@ -105,6 +105,8 @@ spec:
               key: ADMIN_CLIENT_SECRET
         command: ["/bin/sh"]
         args: ["-c", "uvicorn src.main:app --host 0.0.0.0 --port 8080 --root-path /api/v1/users"]
+      serviceAccountName: {{ default .Values.global.rbac.serviceAccountName .Values.rbac.serviceAccountName }}
+      automountServiceAccountToken: {{ default .Values.global.rbac.automountToken .Values.rbac.automountToken }}
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: "{{ .Values.schedulerName }}"

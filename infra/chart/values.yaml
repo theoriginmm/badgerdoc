@@ -1,15 +1,20 @@
 global:
   db:
-    host: postgres-postgresql
+    host: postgres-postgresql-xxx
+    port: 5432
   s3:
     endpoint: "http://minio"
+  host: yourexample.com
+  rbac:
+    serviceAccountName: "serviceAccount"
+    automountToken: false
 
 annotation:
   affinity: {}
   db:
-    host: sdr
-    name: annotation
-    port: "5432"
+    host: null
+    port: null
+    name: "annotation"
   image:
     registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
     tag: latest
@@ -17,7 +22,7 @@ annotation:
   nodeSelector: {}
   replicaCount: 1
   s3:
-    endpoint: http://minio
+    endpoint: null
   secret:
     dbpassword: postgres
     dbuser: postgres
@@ -42,21 +47,17 @@ assets:
       cpu: "200m"
     limits:
       memory: "1000Mi"
-      cpu: "400m"
+      cpu: "500m"
   s3:
     endpoint: null
-  db:
-    host: "postgres-postgresql"
-    port: "5432"
-    name: "assets"
   affinity: {}
   nodeSelector: {}
   tolerations: []
   secret:
     enabled: true
     dburl: "postgresql+psycopg2://postgres:postgres@postgres-postgresql:5432/file_management"
-    s3user: "serviceuser"
-    s3password: "12345678"
+    s3user: null
+    s3password: null
   securityContext: {}
   servicePort: 80
   serviceType: ClusterIP
@@ -80,8 +81,8 @@ jobs:
       memory: "200Mi"
       cpu: "200m"
     limits:
-      memory: "1000Mi"
-      cpu: "400m"
+      memory: "2000Mi"
+      cpu: "500m"
   keycloak:
     externalUrl: "http://example.com"
   nameOverride: ""
@@ -104,16 +105,16 @@ users:
   replicaCount: 1
   resources:
     requests:
-      memory: "200Mi"
+      memory: "100Mi"
       cpu: "200m"
     limits:
-      memory: "1000Mi"
-      cpu: "400m"
+      memory: "1200Mi"
+      cpu: "600m"
   s3:
-    endpoint: "http://minio"
+    endpoint: null
   db:
-    host: "postgres-postgresql"
-    port: "5432"
+    host: null
+    port: null
     name: "users"
   keycloak:
     externalUrl: "http://example.com"
@@ -122,8 +123,8 @@ users:
     enabled: true
     dbuser: "postgres"
     dbpassword: "postgres"
-    s3user: "serviceuser"
-    s3password: "12345678"
+    s3user: null
+    s3password: null
 
 web:
   image:
