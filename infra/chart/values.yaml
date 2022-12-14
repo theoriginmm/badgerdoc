@@ -12,6 +12,7 @@ global:
   imagePullPolicy: Always
   serviceAccountName: null
   automountToken: false
+  replicaCount: 1
   resources:
     requests:
       memory: "000Mi"
@@ -66,6 +67,15 @@ users:
     enabled: true
     dbuser: "postgres"
     dbpassword: "postgres"
+
+taxonomy:
+  dbName: "taxonomy"
+  imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc/taxonomy
+  imageTag: 0.1.5-379754b
+  secret:
+    dbpassword: postgres
+    dbuser: postgres
+    enabled: true
 
 badgerdoc-ui:
   imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc/badgerdoc_ui
