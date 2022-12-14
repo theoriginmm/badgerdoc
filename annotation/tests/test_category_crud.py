@@ -1,7 +1,8 @@
 import uuid
 from json import loads
 from typing import Any, List, Optional, Tuple, Union
-from unittest.mock import patch
+from unittest.mock import Mock, patch
+from uuid import UUID
 
 import pytest
 from fastapi.testclient import TestClient
@@ -14,6 +15,22 @@ from tests.override_app_dependency import TEST_HEADERS, app
 
 client = TestClient(app)
 
+ATTRIBUTES_NOT_IN_CATEGORY_MODEL = ("is_leaf",)
+NOT_FULLY_TEST_SUPPORTED_CATEGORY_ATTRIBUTES = (
+    "parents",
+    "is_leaf",
+    "id",
+)
+
+
+def clean_data_for_db(data):
+    cleaned_data = {
+        key: value
+        for key, value in data.items()
+        if key not in ATTRIBUTES_NOT_IN_CATEGORY_MODEL
+    }
+    return cleaned_data
+
 
 def prepare_category_body(
     id_: Optional[str] = None,
@@ -24,6 +41,7 @@ def prepare_category_body(
     body_other_tenant: Optional[bool] = False,
     editor: Optional[str] = None,
     data_attributes: Optional[List[dict]] = None,
+    is_leaf=True,
 ) -> dict:
     body = {
         "data_attributes": data_attributes,
@@ -33,6 +51,7 @@ def prepare_category_body(
         "metadata": metadata,
         "name": name,
         "parent": parent,
+        "is_leaf": is_leaf,
     }
     if body_other_tenant:
         body["tenant"] = "other_tenant"
@@ -119,7 +138,20 @@ def prepare_expected_result(
     response_map = loads(response) if isinstance(response, str) else response
     if not with_category_id:
         response_map["id"] = None
-    return {key: response_map[key] for key in sorted(response_map)}
+    return {
+        key: response_map[key]
+        for key in sorted(response_map)
+        if key not in NOT_FULLY_TEST_SUPPORTED_CATEGORY_ATTRIBUTES
+    }
+
+
+def prepare_category_response(data: dict) -> dict:
+    data = {
+        key: value
+        for key, value in data.items()
+        if key not in NOT_FULLY_TEST_SUPPORTED_CATEGORY_ATTRIBUTES
+    }
+    return data
 
 
 @fixture
@@ -179,7 +211,9 @@ def test_add_unique_name(prepare_db_categories_different_names, category_name):
     data = prepare_category_body(name=category_name)
     response = client.post(CATEGORIES_PATH, json=data, headers=TEST_HEADERS)
     assert response.status_code == 201
-    assert prepare_expected_result(response.text) == data
+    assert prepare_expected_result(response.text) == prepare_category_response(
+        data
+    )
 
 
 @mark.integration
@@ -201,7 +235,9 @@ def test_add_unique_name_custom_fields(
     data = prepare_category_body(**field_value_pairs)
     response = client.post(CATEGORIES_PATH, json=data, headers=TEST_HEADERS)
     assert response.status_code == 201
-    assert prepare_expected_result(response.text) == data
+    assert prepare_expected_result(response.text) == prepare_category_response(
+        data
+    )
 
 
 @mark.integration
@@ -279,23 +315,39 @@ def test_add_id_is_unique(prepare_db_categories_different_names):
     data = prepare_category_body(id_="my_favourite_category")
     response = client.post(CATEGORIES_PATH, json=data, headers=TEST_HEADERS)
     assert response.status_code == 201
-    assert (
-        prepare_expected_result(response.text, with_category_id=True) == data
-    )
+    assert prepare_expected_result(
+        response.text, with_category_id=True
+    ) == prepare_category_response(data)
 
 
 @mark.integration
-@patch("uuid.uuid4", return_value="fe857daa-8332-4a26-ab50-29be0a74477e")
+@patch("uuid.uuid4", return_value=UUID("fe857daa-8332-4a26-ab50-29be0a74477e"))
 def test_add_id_is_generated(prepare_db_categories_different_names):
     data = prepare_category_body()
     response = client.post(CATEGORIES_PATH, json=data, headers=TEST_HEADERS)
     mocked_id = str(uuid.uuid4())
     data_with_mocked_id = prepare_category_body(id_=mocked_id)
     assert response.status_code == 201
-    assert (
-        prepare_expected_result(response.text, with_category_id=True)
-        == data_with_mocked_id
+    assert prepare_expected_result(
+        response.text, with_category_id=True
+    ) == prepare_category_response(data_with_mocked_id)
+
+
+@mark.integration
+@patch("app.categories.resources.link_category_with_taxonomy")
+@patch("uuid.uuid4", return_value="fe857daa-8332-4a26-ab50-29be0a74477e")
+def test_should_send_link_request_taxonomy_service(
+    uuid_mock, link_request_mock, prepare_db_categories_different_names
+):
+    data = prepare_category_body(
+        id_="1213",
+        name="taxonomy_12",
+        data_attributes=[{"taxonomy_id": "123"}, {"taxonomy_version": 1}],
     )
+    response = client.post(CATEGORIES_PATH, json=data, headers=TEST_HEADERS)
+    assert response
+    assert response.status_code == 201
+    assert link_request_mock.called
 
 
 @mark.integration
@@ -346,7 +398,9 @@ def test_get_allowed_category(
         f"{CATEGORIES_PATH}/{category_id}", headers=TEST_HEADERS
     )
     assert response.status_code == 200
-    assert prepare_expected_result(response.text) == data
+    assert prepare_expected_result(response.text) == prepare_category_response(
+        data
+    )
 
 
 @mark.integration
@@ -443,7 +497,12 @@ def test_search_allowed_categories(
     )
     category = response.json()["data"][0]
     assert response.status_code == 200
-    assert prepare_expected_result(category) == expected
+
+    prepared_category_response = prepare_category_response(expected)
+    prepared_expected_result = prepare_expected_result(category)
+
+    for key in prepared_expected_result:
+        assert prepared_category_response[key] == prepared_expected_result[key]
 
 
 @mark.integration
@@ -638,7 +697,9 @@ def test_update_category_custom_fields(
         f"{CATEGORIES_PATH}/{cat_id}", json=data, headers=TEST_HEADERS
     )
     assert response.status_code == 200
-    assert prepare_expected_result(response.text) == data
+    assert prepare_expected_result(response.text) == prepare_category_response(
+        data
+    )
 
 
 @mark.integration
@@ -669,7 +730,9 @@ def test_update_other_tenant_exist_name(prepare_db_categories_different_names):
         f"{CATEGORIES_PATH}/{cat_id}", json=data, headers=TEST_HEADERS
     )
     assert response.status_code == 200
-    assert prepare_expected_result(response.text) == data
+    assert prepare_expected_result(response.text) == prepare_category_response(
+        data
+    )
 
 
 @mark.integration
@@ -723,20 +786,25 @@ def test_update_allowed_parent(
     cat_id = "1"
     data_add = prepare_category_body(name="Footer")
     data_add["id"] = category_parent
-    prepare_db_categories_different_names.merge(Category(**data_add))
+    prepare_db_categories_different_names.merge(
+        Category(**clean_data_for_db(data_add))
+    )
     prepare_db_categories_different_names.commit()
     data_update = prepare_category_body(parent=category_parent)
     response = client.put(
         f"{CATEGORIES_PATH}/{cat_id}", json=data_update, headers=TEST_HEADERS
     )
     assert response.status_code == 200
-    assert prepare_expected_result(response.text) == data_update
+    assert prepare_expected_result(response.text) == prepare_category_response(
+        data_update
+    )
 
 
 @mark.integration
 @patch(
     "app.categories.resources.delete_category_db", side_effect=SQLAlchemyError
 )
+@patch("app.categories.resources.delete_taxonomy_link", Mock)
 def test_delete_db_connection_error(prepare_db_categories_same_names):
     cat_id = "1"
     response = client.delete(
@@ -751,6 +819,7 @@ def test_delete_db_connection_error(prepare_db_categories_same_names):
     "category_id",
     ("3", "100"),  # category from other tenant and category that doesn't exist
 )
+@patch("app.categories.resources.delete_taxonomy_link", Mock)
 def test_delete_wrong_category(
     category_id,
     prepare_db_categories_same_names,
@@ -764,6 +833,7 @@ def test_delete_wrong_category(
 
 
 @mark.integration
+@patch("app.categories.resources.delete_taxonomy_link", Mock)
 def test_delete_common_category(prepare_db_categories_same_names):
     cat_id = "2"
     response = client.delete(
@@ -774,6 +844,7 @@ def test_delete_common_category(prepare_db_categories_same_names):
 
 
 @mark.integration
+@patch("app.categories.resources.delete_taxonomy_link", Mock)
 def test_delete_tenant_category(prepare_db_categories_same_names):
     cat_id = "1"
     response = client.delete(
@@ -790,6 +861,7 @@ def test_delete_tenant_category(prepare_db_categories_same_names):
 
 @mark.integration
 @mark.parametrize("add_for_cascade_delete", ["1"], indirect=True)
+@patch("app.categories.resources.delete_taxonomy_link", Mock)
 def test_cascade_delete_tenant_parent(add_for_cascade_delete):
     cat_id = "1"
     child_1, child_2 = add_for_cascade_delete

@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-1. PostgreSQL database host, port, credentials
+1. PostgreSQL database host, port, credentials per service
 2. Access to S3
 
 ## How to install
