@@ -1,59 +1,25 @@
 global:
-  db:
-    host: postgres-postgresql
-    port: 5432
-  s3:
-    endpoint: "http://minio"
-  host: yourexample.com
-  rbac:
-    serviceAccountName: null
-    automountToken: false
-
-annotation:
-  affinity: {}
-  db:
-    host: null
-    port: null
-    name: "annotation"
-  image:
-    registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
-    tag: 0.1.5-379754b
-  imagePullPolicy: Always
-  nodeSelector: {}
-  replicaCount: 1
-  resources: null
-  s3:
-    endpoint: null
-  secret:
-    dbpassword: postgres
-    dbuser: postgres
-    enabled: true
-    s3password: null
-    s3user: null
-  tolerations: []
-
-assets:
-  image:
-    registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
-    tag: 0.1.7-379754b
-  imagePullPolicy: Always
+  affinity: null
+  labels: null
+  nodeSelector: null
+  tolerations: null
   podAnnotations:
     sidecar.istio.io/inject: "false"
-  labels:
-    app: assets
-  replicaCount: 1
-  resources: null
-  s3:
-    endpoint: null
-  affinity: {}
-  nodeSelector: {}
-  tolerations: []
-  secret:
-    enabled: true
-    dburl: "postgresql+psycopg2://postgres:postgres@postgres-postgresql:5432/file_management"
-    s3user: null
-    s3password: null
-  securityContext: {}
+  dbHost: postgres-postgresql
+  dbPort: 5432
+  s3Endpoint: "http://minio"
+  host: yourexample.com
+  imagePullPolicy: Always
+  serviceAccountName: null
+  automountToken: false
+  resources:
+    requests:
+      memory: "000Mi"
+      cpu: "000m"
+    limits:
+      memory: "0000Mi"
+      cpu: "000m"
+  schedulerName: null
   servicePort: 80
   serviceType: ClusterIP
   updateStrategy:
@@ -62,67 +28,47 @@ assets:
       maxUnavailable: 25%
     type: RollingUpdate
 
-jobs:
-  image:
-    registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
-    tag: jobs:0.1.9-379754b
-  podAnnotations:
-    sidecar.istio.io/inject: "false"
-  labels:
-    app: jobs
-  replicaCount: 1
-  resources: null
-  keycloak:
-    externalUrl: "http://example.com"
-  nameOverride: ""
-  affinity: {}
-  nodeSelector: {}
-  tolerations: []
+annotation:
+  dbName: "annotation"
+  imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc/annotation
+  imageTag: 0.1.5-379754b
+  secret:
+    dbpassword: postgres
+    dbuser: postgres
+    enabled: true
+
+assets:
+  imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc/assets
+  imageTag: 0.1.7-379754b
   secret:
     enabled: true
-    dburl: "postgresql+psycopg2://postgres:postgres@postgres-postgresql:5432/job_manager"
-  securityContext: {}
+    dbUrl: "postgresql+psycopg2://postgres:postgres@postgres-postgresql:5432/file_management"
 
-users:
-  image:
-    registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
-    tag: 0.1.2-379754b
-  podAnnotations:
-    sidecar.istio.io/inject: "false"
-  labels:
-    app: users
-  replicaCount: 1
-  resources: null
-  s3:
-    endpoint: null
-  db:
-    host: null
-    port: null
-    name: "users"
+
+jobs:
+  imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc/jobs
+  imageTag: 0.1.9-379754b
   keycloak:
     externalUrl: "http://example.com"
-    internalUrl: "http://bagerdoc-keycloack"
+  secret:
+    enabled: true
+    dbUrl: "postgresql+psycopg2://postgres:postgres@postgres-postgresql:5432/job_manager"
+
+
+users:
+  imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
+  imageTag: 0.1.2-379754b
+  dbName: "users"
+  keycloak:
+    externalUrl: "http://example.com"
+    internalUrl: "http://bagerdoc-keycloak"
   secret:
     enabled: true
     dbuser: "postgres"
     dbpassword: "postgres"
-    s3user: null
-    s3password: null
 
-web:
-  image:
-    registry: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
-    tag: 0.2.0-379754b
-  podAnnotations:
-    sidecar.istio.io/inject: "false"
-  labels:
-    app: badgerdoc-ui
-  replicaCount: 1
-  resources: {}
-  affinity: {}
-  nodeSelector: {}
-  tolerations: []
-  servicePort: 80
-  serviceType: ClusterIP
+badgerdoc-ui:
+  imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc/badgerdoc_ui
+  imageTag: 0.2.0-379754b
 
 

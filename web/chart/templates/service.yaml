@@ -10,10 +10,10 @@ spec:
   - IPv4
   ipFamilyPolicy: SingleStack
   ports:
-  - port: {{ .Values.servicePort }}
-    protocol: TCP
-    targetPort: 3000
+    - port: {{ default .Values.global.servicePort .Values.servicePort }}
+      protocol: TCP
+      targetPort: 3000
   selector:
     app: "{{ template "svc.name" . }}"
   sessionAffinity: None
-  type: "{{ .Values.serviceType }}"
+  type: "{{ default .Values.global.serviceType .Values.serviceType }}"
