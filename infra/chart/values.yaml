@@ -8,7 +8,7 @@ global:
   dbHost: postgres-postgresql
   dbPort: 5432
   s3CredentialsProvider: "aws_iam"
-  s3Endpoint: "http://minio"
+  s3Endpoint: "minio"
   host: yourexample.com
   imagePullPolicy: Always
   serviceAccountName: null
