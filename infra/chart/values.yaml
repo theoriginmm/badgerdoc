@@ -57,7 +57,7 @@ jobs:
 
 
 users:
-  imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
+  imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc/users
   imageTag: 0.1.2-0d3e100
   dbName: "users"
   keycloak:
