@@ -33,7 +33,7 @@ global:
 annotation:
   dbName: "annotation"
   imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc/annotation
-  imageTag: 0.1.5-379754b
+  imageTag: 0.1.5-0d3e100
   secret:
     dbpassword: postgres
     dbuser: postgres
@@ -41,20 +41,14 @@ annotation:
 
 assets:
   imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc/assets
-  imageTag: 0.1.7-379754b
+  imageTag: 0.1.7-0d3e100
   secret:
     enabled: true
     dbUrl: "postgresql+psycopg2://postgres:postgres@postgres-postgresql:5432/file_management"
 
-  kubectl create secret docker-registry regcred \
-  --docker-server=818863528939.dkr.ecr.eu-central-1.amazonaws.com \
-  --docker-username=AWS \
-  --docker-password=$(aws ecr get-login-password) \
-  --namespace=health-check
-
 jobs:
   imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc/jobs
-  imageTag: 0.1.9-379754b
+  imageTag: 0.1.9-0d3e100
   keycloak:
     externalUrl: "http://example.com"
   secret:
@@ -64,7 +58,7 @@ jobs:
 
 users:
   imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc
-  imageTag: 0.1.2-379754b
+  imageTag: 0.1.2-0d3e100
   dbName: "users"
   keycloak:
     externalUrl: "http://example.com"
@@ -77,7 +71,7 @@ users:
 taxonomy:
   dbName: "taxonomy"
   imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc/taxonomy
-  imageTag: 0.1.5-379754b
+  imageTag: 0.0.1-0d3e100
   secret:
     dbpassword: postgres
     dbuser: postgres
