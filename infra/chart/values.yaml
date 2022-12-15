@@ -7,6 +7,7 @@ global:
     sidecar.istio.io/inject: "false"
   dbHost: postgres-postgresql
   dbPort: 5432
+  s3CredentialsProvider: "aws_iam"
   s3Endpoint: "http://minio"
   host: yourexample.com
   imagePullPolicy: Always
@@ -20,7 +21,7 @@ global:
     limits:
       memory: "0000Mi"
       cpu: "000m"
-  schedulerName: null
+  schedulerName: default-scheduler
   servicePort: 80
   serviceType: ClusterIP
   updateStrategy:
@@ -45,6 +46,11 @@ assets:
     enabled: true
     dbUrl: "postgresql+psycopg2://postgres:postgres@postgres-postgresql:5432/file_management"
 
+  kubectl create secret docker-registry regcred \
+  --docker-server=818863528939.dkr.ecr.eu-central-1.amazonaws.com \
+  --docker-username=AWS \
+  --docker-password=$(aws ecr get-login-password) \
+  --namespace=health-check
 
 jobs:
   imageName: 818863528939.dkr.ecr.eu-central-1.amazonaws.com/badgerdoc/jobs

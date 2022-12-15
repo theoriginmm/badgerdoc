@@ -78,6 +78,8 @@ spec:
           value: "{{ .Values.dbName }}"
         - name: POSTGRES_HOST
           value: "{{ default .Values.global.dbHost .Values.dbHost }}"
+        - name: S3_CREDENTIALS_PROVIDER
+          value: "{{ default .Values.global.s3CredentialsProvider .Values.s3CredentialsProvider }}"
         - name: S3_ENDPOINT_URL
           value: "{{ default .Values.global.s3Endpoint .Values.s3Endpoint }}"
         {{- if .Values.secret.s3user }}
