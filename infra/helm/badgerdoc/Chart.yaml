@@ -1,0 +1,25 @@
+apiVersion: v1
+name: badgerdoc
+version: 0.0.1
+dependencies:
+  - name: keycloak
+    version: 9.8.1
+    repository: https://charts.bitnami.com/bitnami
+  - name: postgresql
+    version: 11.8.2
+    repository: https://charts.bitnami.com/bitnami
+  - name: gotenberg
+    version: 7.4.3
+  - name: kafka
+    repository: https://charts.bitnami.com/bitnami
+    version: ^21
+#  - name: minio
+#    version: 4.3.7
+#    repository:  https://operator.min.io
+  - name: microservice
+    version: 0.0.1
+    alias: annotation
+  - name: microservice
+    version: 0.0.1
+    alias: users
+

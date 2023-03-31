@@ -1,0 +1,73 @@
+keycloak:
+  externalDatabase:
+    host: postgresql
+    password: postgres
+    user: postgres
+    database: keycloak
+  postgresql:
+    enabled: false
+  service:
+    type: ClusterIP
+#  image:
+#    tag: 15.0.2-debian-10-r66
+
+
+postgresql:
+  fullnameOverride: postgresql
+  global:
+    postgresql:
+      auth:
+        postgresPassword: postgres
+  primary:
+    initdb:
+      scripts:
+        create.sql: |
+          create database annotation;
+          create database job_manager;
+          create database file_management;
+          create database models;
+          create database pipelines;
+          create database processing;
+          create database users;
+          create database scheduler;
+          create database keycloak;
+          create database taxonomy;
+          \c annotation;
+          create extension ltree;
+          \c taxonomy;
+          create extension ltree;
+
+global:
+  affinity: null
+  labels: null
+  nodeSelector: null
+  tolerations: null
+  podAnnotations:
+    sidecar.istio.io/inject: "false"
+  dbHost: postgres-postgresql
+  dbPort: 5432
+  s3CredentialsProvider: "aws_iam"
+  s3Endpoint: "minio"
+  host: yourexample.com
+  imagePullPolicy: Always
+  serviceAccountName: null
+  automountToken: false
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "000Mi"
+      cpu: "000m"
+    limits:
+      memory: "0000Mi"
+      cpu: "000m"
+  schedulerName: default-scheduler
+  servicePort: 80
+  serviceType: ClusterIP
+  updateStrategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+
+annotaion:
+  servicePort: 80

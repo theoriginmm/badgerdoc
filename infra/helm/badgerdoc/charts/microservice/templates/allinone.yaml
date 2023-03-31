@@ -1,0 +1,101 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: "{{ template "svc.name" . }}"
+  name: "{{ template "svc.name" . }}"
+  namespace: {{ .Release.Namespace }}
+spec:
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - port: {{ default .Values.global.servicePort .Values.servicePort }}
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: "{{ template "svc.name" . }}"
+  sessionAffinity: None
+  type: "{{ default .Values.global.serviceType .Values.serviceType }}"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  labels:
+    release: {{ .Release.Name | quote }}
+    chart: "{{ .Chart.Name }}"
+    app: "{{ template "svc.name" . }}"
+    {{- range $key, $value := .Values.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  name: {{ template "svc.name" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  progressDeadlineSeconds: 600
+  replicas: {{ default .Values.global.replicaCount .Values.replicaCount }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: {{ template "svc.name" . }}
+  strategy:
+{{ .Values.updateStrategy | default .Values.global.updateStrategy | toYaml | indent 4 }}
+  template:
+    metadata:
+      labels:
+        release: {{ .Release.Name | quote }}
+        chart: "{{ .Chart.Name }}"
+        app: "{{ template "svc.name" . }}"
+        {{- if .Values.labels }}
+        {{- range $key, $value := .Values.labels }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+        {{- else }}
+        {{- range $key, $value := .Values.global.labels }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+      annotations:
+        {{- if .Values.podAnnotation }}
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+        {{- else}}
+        {{- range $key, $value := .Values.global.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+    spec:
+      affinity:
+{{ .Values.affinity | default .Values.global.affinity | toYaml | indent 8 }}
+      nodeSelector:
+{{ .Values.nodeSelector | default .Values.global.nodeSelector | toYaml | indent 8 }}
+      tolerations:
+{{ .Values.tolerations | default .Values.global.tolerations | toYaml | indent 8 }}
+      containers:
+      - image: "{{ .Values.imageName }}:{{ default .Values.global.imageTag .Values.imageTag }}"
+        imagePullPolicy: "{{ default .Values.global.imagePullPolicy .Values.imagePullPolicy }}"
+        name: {{ template "svc.name" . }}
+        resources:
+{{ .Values.resources | default .Values.global.resources | toYaml | indent 10 }}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        envFrom:
+        - configMapRef:
+            name: badgerdoc-env-config
+{{- if .Values.extraEnvs }}
+{{ toYaml .Values.extraEnvs | indent 8 }}
+{{- end }}
+        command: ["/bin/sh"]
+        args: ["-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8080 --root-path /api/v1/annotation"]
+      serviceAccountName: {{ default .Values.global.serviceAccountName .Values.serviceAccountName }}
+      automountServiceAccountToken: {{ default .Values.global.automountToken .Values.automountToken }}
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: {{ default .Values.global.schedulerName .Values.schedulerName }}
+      securityContext:
+{{ toYaml .Values.securityContext | indent 8 }}
+      terminationGracePeriodSeconds: 30
