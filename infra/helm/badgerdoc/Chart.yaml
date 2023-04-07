@@ -8,14 +8,15 @@ dependencies:
   - name: postgresql
     version: 11.8.2
     repository: https://charts.bitnami.com/bitnami
-  - name: gotenberg
-    version: 7.4.3
   - name: kafka
     repository: https://charts.bitnami.com/bitnami
     version: ^21
-#  - name: minio
-#    version: 4.3.7
-#    repository:  https://operator.min.io
+  - name: minio
+    version: ^12
+    repository: https://charts.bitnami.com/bitnami
+  - name: microservice
+    version: 0.0.1
+    alias: gotenberg
   - name: microservice
     version: 0.0.1
     alias: annotation

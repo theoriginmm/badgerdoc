@@ -39,6 +39,8 @@ postgresql:
 
 global:
   affinity: null
+  args: null
+  command: null
   labels: null
   nodeSelector: null
   tolerations: null
@@ -69,5 +71,23 @@ global:
       maxUnavailable: 25%
     type: RollingUpdate
 
-annotaion:
+minio:
+  auth:
+    rootUser: minioadmin
+    rootPassword: minioadmin
+
+gotenberg:
+  imageName: gotenberg/gotenberg
+  imageTag: 7.4.3-cloudrun
+
+annotation:
+  command: ["/bin/sh"]
+  args: ["-c", "sleep 300"]
+  imageName: nginx
+  imageTag: 1.23
+  servicePort: 80
+
+users:
+  imageName: nginx
+  imageTag: 1.23
   servicePort: 80

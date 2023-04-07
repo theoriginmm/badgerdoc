@@ -84,13 +84,16 @@ spec:
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         envFrom:
-        - configMapRef:
-            name: badgerdoc-env-config
+          - configMapRef:
+              name: badgerdoc-env-config
 {{- if .Values.extraEnvs }}
 {{ toYaml .Values.extraEnvs | indent 8 }}
 {{- end }}
-        command: ["/bin/sh"]
-        args: ["-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8080 --root-path /api/v1/annotation"]
+        command: {{ default .Values.global.command .Values.command }}
+        args:
+        {{ range .Values.args }}
+          - {{ . }}
+        {{ end }}
       serviceAccountName: {{ default .Values.global.serviceAccountName .Values.serviceAccountName }}
       automountServiceAccountToken: {{ default .Values.global.automountToken .Values.automountToken }}
       dnsPolicy: ClusterFirst
