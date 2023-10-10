@@ -10,7 +10,7 @@ data:
   KEYCLOAK_USERS_PUBLIC_KEY: o-ELaEqColYci729k-zBwy68UMsfd3NP3Bh7uZ-3NOs
   LOG_LEVEL: DEBUG
   POSTGRES_DB: badgerdoc
-  POSTGRES_HOST: postgres-postgresql
+  POSTGRES_HOST: postgresql
   POSTGRES_PASSWORD: postgres
   POSTGRES_PORT: "5432"
   POSTGRES_USER: postgres
@@ -18,3 +18,4 @@ data:
   S3_ENDPOINT: badgerdoc-minio
   S3_ENDPOINT_URL: http://badgerdoc-minio:9000
   S3_SECRET_KEY: minioadmin
+  S3_PROVIDER: minio

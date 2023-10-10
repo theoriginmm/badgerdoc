@@ -21,8 +21,9 @@ postgresql:
   primary:
     initdb:
       scripts:
-        create.sql: |
+        00_init_extensions.sql: |
           create database annotation;
+          create database badgerdoc;
           create database job_manager;
           create database file_management;
           create database models;
@@ -36,6 +37,25 @@ postgresql:
           create extension ltree;
           \c taxonomy;
           create extension ltree;
+#        create.sql: |
+#          create database annotation;
+#          create database badgerdoc;
+#          create database job_manager;
+#          create database file_management;
+#          create database models;
+#          create database pipelines;
+#          create database processing;
+#          create database users;
+#          create database scheduler;
+#          create database keycloak;
+#          create database taxonomy;
+#          \c annotation;
+#          create extension ltree;
+#          \c taxonomy;
+#          create extension ltree;
+
+kafka:
+  fullnameOverride: kafka
 
 global:
   affinity: null
@@ -81,13 +101,60 @@ gotenberg:
   imageTag: 7.4.3-cloudrun
 
 annotation:
-  command: ["/bin/sh"]
-  args: ["-c", "sleep 300"]
-  imageName: nginx
-  imageTag: 1.23
+
+#  args: ["-c", "sleep 300"]
+  imageName: ghcr.io/theoriginmm/badgerdoc/annotation
+  imageTag: 1.7.1
   servicePort: 80
+  command: ["/bin/sh"]
+  args: [ "-c", "alembic upgrade head && uvicorn annotation.main:app --host 0.0.0.0 --port 8080 --root-path /api/v1/annotation" ]
 
 users:
-  imageName: nginx
-  imageTag: 1.23
+  imageName: ghcr.io/theoriginmm/badgerdoc/users
+  imageTag: 1.7.1
   servicePort: 80
+
+ui:
+  imageName: ghcr.io/theoriginmm/badgerdoc/badgerdoc_ui
+  imageTag: 1.7.1
+  servicePort: 80
+
+convert:
+  imageName: ghcr.io/theoriginmm/badgerdoc/convert
+  imageTag: 1.7.1
+  servicePort: 80
+jobs:
+  imageName: ghcr.io/theoriginmm/badgerdoc/jobs
+  imageTag: 1.7.1
+  servicePort: 80
+assets:
+  imageName: ghcr.io/theoriginmm/badgerdoc/assets
+  imageTag: 1.7.1
+  servicePort: 80
+pipelines:
+  imageName: ghcr.io/theoriginmm/badgerdoc/pipelines
+  imageTag: 1.7.1
+  servicePort: 80
+  command: [ "/bin/sh" ]
+  args: [ "-c", "./wait-for-it.sh -t 0 kafka:9092 && alembic upgrade head && uvicorn pipelines.app:app --host 0.0.0.0 --port 8080 --reload"]
+taxonomy:
+  imageName: ghcr.io/theoriginmm/badgerdoc/taxonomy
+  imageTag: 1.7.1
+  servicePort: 80
+processing:
+  imageName: ghcr.io/theoriginmm/badgerdoc/processing
+  imageTag: 1.7.1
+  servicePort: 80
+  extraEnvs:
+    env:
+      - name: "ROOT_PATH"
+        value: "/processing"
+models:
+  imageName: ghcr.io/theoriginmm/badgerdoc/models
+  imageTag: 1.7.1
+  servicePort: 80
+  cap_add:
+    - SYS_ADMIN
+  devices:
+    - "/dev/fuse"
+
