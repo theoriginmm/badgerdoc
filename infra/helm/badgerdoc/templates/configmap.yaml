@@ -5,8 +5,8 @@ metadata:
   name: badgerdoc-env-config
 data:
   KEYCLOAK_HOST: http://badgerdoc-keycloak:80
-  KEYCLOAK_PASSWORD: admin
-  KEYCLOAK_USER: admin
+  KEYCLOAK_PASSWORD: user
+  KEYCLOAK_USER: user
   KEYCLOAK_USERS_PUBLIC_KEY: o-ELaEqColYci729k-zBwy68UMsfd3NP3Bh7uZ-3NOs
   LOG_LEVEL: DEBUG
   POSTGRES_DB: badgerdoc

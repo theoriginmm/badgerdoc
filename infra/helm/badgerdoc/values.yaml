@@ -1,4 +1,6 @@
 keycloak:
+  auth:
+    adminPassword: user
   externalDatabase:
     host: postgresql
     password: postgres
@@ -8,8 +10,8 @@ keycloak:
     enabled: false
   service:
     type: ClusterIP
-#  image:
-#    tag: 15.0.2-debian-10-r66
+  image:
+    tag: 15.0.2-debian-10-r66
 
 
 postgresql:
@@ -83,6 +85,7 @@ global:
       memory: "0000Mi"
       cpu: "000m"
   schedulerName: default-scheduler
+  containerPort: 8080
   servicePort: 80
   serviceType: ClusterIP
   updateStrategy:
@@ -117,6 +120,7 @@ users:
 ui:
   imageName: ghcr.io/theoriginmm/badgerdoc/badgerdoc_ui
   imageTag: 1.7.1
+  containerPort: 3000
   servicePort: 80
 
 convert:

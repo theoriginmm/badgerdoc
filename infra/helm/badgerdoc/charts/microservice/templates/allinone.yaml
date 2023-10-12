@@ -1,4 +1,24 @@
 ---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  name: "{{ template "svc.name" . }}"
+spec:
+  rules:
+    - host: badgerdoc.example.com
+      http:
+        paths:
+          - path: /api/v1/{{ template "svc.name" . }}(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ template "svc.name" . }}
+                port:
+                  number: 80
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -13,7 +33,7 @@ spec:
   ports:
     - port: {{ default .Values.global.servicePort .Values.servicePort }}
       protocol: TCP
-      targetPort: 8080
+      targetPort: {{ default .Values.global.containerPort .Values.containerPort }}
   selector:
     app: "{{ template "svc.name" . }}"
   sessionAffinity: None
