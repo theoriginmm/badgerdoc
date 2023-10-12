@@ -10,6 +10,12 @@ keycloak:
     enabled: false
   service:
     type: ClusterIP
+  readinessProbe:
+    enabled: false
+  customReadinessProbe:
+    httpGet:
+      path: /auth/
+      port: http
   image:
     tag: 15.0.2-debian-10-r66
 
