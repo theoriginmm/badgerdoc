@@ -3,6 +3,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60s"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60s"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60s"
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
   name: "{{ template "svc.name" . }}"
@@ -15,7 +18,7 @@ spec:
             pathType: ImplementationSpecific
             backend:
               service:
-                name: {{ template "svc.name" . }}
+                name: badgerdoc-{{ template "svc.name" . }}
                 port:
                   number: 80
 ---
@@ -24,7 +27,7 @@ kind: Service
 metadata:
   labels:
     app: "{{ template "svc.name" . }}"
-  name: "{{ template "svc.name" . }}"
+  name: "badgerdoc-{{ template "svc.name" . }}"
   namespace: {{ .Release.Namespace }}
 spec:
   ipFamilies:
